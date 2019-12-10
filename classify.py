@@ -27,10 +27,11 @@ class Net(torch.nn.Module):
     def forward(self, x):
         x = torch.relu(self.n_hidden(x))
         x = self.out(x)
+        x = torch.nn.functional.softmax(x)
         return x
 
 
-net = Net(n_feature=2, n_hidden=10, n_output=2)
+net = Net(n_feature=2, n_hidden=10, n_output=1)
 # print(net)
 
 optimizer = torch.optim.SGD(net.parameters(), lr=0.02)
@@ -39,6 +40,7 @@ loss_func = torch.nn.CrossEntropyLoss()
 
 for i in range(100):
     out = net(x)
+    print(type(out), type(y))
     loss = loss_func(out, y)
     optimizer.zero_grad()
     loss.backward()
