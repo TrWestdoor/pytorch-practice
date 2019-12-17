@@ -27,7 +27,7 @@ class Net(torch.nn.Module):
     def forward(self, x):
         x = torch.relu(self.n_hidden(x))
         x = self.out(x)
-        x = torch.nn.functional.softmax(x)
+        x = torch.nn.functional.sigmoid(x)
         return x
 
 
@@ -35,13 +35,14 @@ net = Net(n_feature=2, n_hidden=10, n_output=1)
 # print(net)
 
 optimizer = torch.optim.SGD(net.parameters(), lr=0.02)
-loss_func = torch.nn.CrossEntropyLoss()
-
+# loss_func = torch.nn.CrossEntropyLoss()
+loss_func = torch.nn.KLDivLoss()
 
 for i in range(100):
     out = net(x)
-    print(type(out), type(y))
+    print(out.shape, y.shape)
     loss = loss_func(out, y)
+
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
@@ -49,7 +50,7 @@ for i in range(100):
 
 # train result
 train_result = net(x)
-print(train_result.shape)
+# print(train_result.shape)
 train_predict = torch.max(train_result, 1)[1]
 plt.scatter(x.data.numpy()[:, 0], x.data.numpy()[:, 1], c=train_predict.data.numpy(), s=100, lw=0, cmap='RdYlGn')
 plt.show()
