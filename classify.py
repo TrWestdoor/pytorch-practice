@@ -8,9 +8,12 @@ x0 = torch.normal(2*n_data, 1)
 y0 = torch.zeros(100)
 x1 = torch.normal(-2*n_data, 1)
 y1 = torch.ones(100)
+x2 = x0
+x2[:, 1] = x1[:, 1]
+y2 = 2 * y1
 
-x = torch.cat((x0, x1)).type(torch.FloatTensor)
-y = torch.cat((y0, y1)).type(torch.LongTensor)
+x = torch.cat((x0, x1, x2)).type(torch.FloatTensor)
+y = torch.cat((y0, y1, y2)).type(torch.LongTensor)
 
 # print(x.shape, y.shape)
 
@@ -27,20 +30,20 @@ class Net(torch.nn.Module):
     def forward(self, x):
         x = torch.relu(self.n_hidden(x))
         x = self.out(x)
-        x = torch.nn.functional.sigmoid(x)
+        x = torch.nn.functional.softmax(x)
         return x
 
 
-net = Net(n_feature=2, n_hidden=10, n_output=1)
+net = Net(n_feature=2, n_hidden=10, n_output=2)
 # print(net)
 
 optimizer = torch.optim.SGD(net.parameters(), lr=0.02)
 # loss_func = torch.nn.CrossEntropyLoss()
-loss_func = torch.nn.KLDivLoss()
+loss_func = torch.nn.CrossEntropyLoss()
 
 for i in range(100):
     out = net(x)
-    print(out.shape, y.shape)
+    # print(out.shape, y.shape)
     loss = loss_func(out, y)
 
     optimizer.zero_grad()
@@ -57,10 +60,10 @@ plt.show()
 
 
 # test
-# t_data = torch.zeros(100, 2)
-# test_data = torch.normal(t_data, 5)
-# test_result = net(test_data)
-# prediction = torch.max(test_result, 1)[1]
-#
-# plt.scatter(test_data[:, 0], test_data[:, 1], s=100, c=prediction.data.numpy(), lw=0, cmap='RdYlGn')
-# plt.show()
+t_data = torch.zeros(1000, 2)
+test_data = torch.normal(t_data, 5)
+test_result = net(test_data)
+prediction = torch.max(test_result, 1)[1]
+
+plt.scatter(test_data[:, 0], test_data[:, 1], s=100, c=prediction.data.numpy(), lw=0, cmap='RdYlGn')
+plt.show()
