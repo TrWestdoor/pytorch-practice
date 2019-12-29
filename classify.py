@@ -38,7 +38,6 @@ net = Net(n_feature=2, n_hidden=10, n_output=2)
 # print(net)
 
 optimizer = torch.optim.SGD(net.parameters(), lr=0.02)
-# loss_func = torch.nn.CrossEntropyLoss()
 loss_func = torch.nn.CrossEntropyLoss()
 
 for i in range(100):
