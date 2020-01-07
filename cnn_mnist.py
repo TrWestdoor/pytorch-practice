@@ -4,6 +4,7 @@ import torchvision
 import matplotlib.pyplot as plt
 import torch.utils.data as Data
 import torch.nn as nn
+import time
 
 
 EPOCH = 1
@@ -33,8 +34,8 @@ print(train_data.targets.size())
 
 train_loader = Data.DataLoader(dataset=train_data, batch_size=BATCH_SIZE, shuffle=True)
 test_data = torchvision.datasets.MNIST(root='./mnist', train=False)
-test_x = torch.unsqueeze(test_data.data, dim=1).type(torch.FloatTensor)[:2000]/255.
-test_y = test_data.targets[:2000]
+test_x = torch.unsqueeze(test_data.data, dim=1).type(torch.FloatTensor)/255.
+test_y = test_data.targets
 
 
 class CNN(nn.Module):
@@ -67,17 +68,27 @@ class CNN(nn.Module):
         output = self.out(x)
         return output
 
-
+gpus = [0]
+cuda_gpu = torch.cuda.is_available()
 cnn = CNN()
 # print(cnn)
+
+if cuda_gpu:
+    cnn = torch.nn.DataParallel(cnn, device_ids=gpus).cuda()
 
 optimizer = torch.optim.Adam(cnn.parameters(), lr=LR)
 loss_func = nn.CrossEntropyLoss()
 
 
+time_start = time.time()
 for epoch in range(EPOCH):
     for step, (b_x, b_y) in enumerate(train_loader):
         # print(b_x.shape); break
+
+        if cuda_gpu:
+            b_x = b_x.cuda()
+            b_y = b_y.cuda()
+
         output = cnn(b_x)
         loss = loss_func(output, b_y)
         optimizer.zero_grad()
@@ -86,7 +97,15 @@ for epoch in range(EPOCH):
 
         if step % 50 == 0:
             test_output = cnn(test_x)
-            pred_y = torch.max(test_output, 1)[1].data.numpy()
+            pred_y = torch.max(test_output, 1)[1].data
+
+            if cuda_gpu:
+                pred_y = pred_y.cpu().numpy()
+            else:
+                pred_y = pred_y.numpy()
+
             accuracy = float((pred_y == test_y.data.numpy()).astype(int).sum()) / float(test_y.size(0))
             print('Epoch: ', epoch, '| train loss: %.4f' % loss.data, '| test accuracy: %.2f' % accuracy)
 
+time_end = time.time()
+print("all time spent: ", time_end-time_start)
