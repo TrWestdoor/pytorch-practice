@@ -6,10 +6,11 @@ import torch.utils.data as Data
 import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
+import time
 
 
 BATCH_SIZE = 50
-EPOCH = 1
+EPOCH = 100
 LR = 0.01
 
 DOWNLOAD_CIFAR10 = False
@@ -42,23 +43,27 @@ class CNN(nn.Module):
         super(CNN, self).__init__()
         self.conv1 = nn.Sequential(
             nn.Conv2d(3, 64, 3, 1, 1),
+            nn.BatchNorm2d(64),
             nn.ReLU()
         )
         # after convolution layer 1, the shape is 64x32x32.
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(64, 128, 3, 1, 1),
+            nn.BatchNorm2d(128),
             nn.ReLU()
         )
         # after convolution layer 2, the shape is 128x32x32.
 
         self.conv3 = nn.Sequential(
             nn.Conv2d(128, 128, 3, 1, 1),
+            nn.BatchNorm2d(128),
             nn.ReLU()
         )
 
         self.conv4 = nn.Sequential(
             nn.Conv2d(128, 128, 3, 1, 1),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2)
         )
@@ -66,16 +71,19 @@ class CNN(nn.Module):
 
         self.conv5 = nn.Sequential(
             nn.Conv2d(128, 128, 3, 1, 1),
+            nn.BatchNorm2d(128),
             nn.ReLU()
         )
 
         self.conv6 = nn.Sequential(
             nn.Conv2d(128, 128, 3, 1, 1),
+            nn.BatchNorm2d(128),
             nn.ReLU()
         )
 
         self.conv7 = nn.Sequential(
             nn.Conv2d(128, 128, 3, 1, 1),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2)
         )
@@ -84,11 +92,13 @@ class CNN(nn.Module):
 
         self.conv8 = nn.Sequential(
             nn.Conv2d(128, 128, 3, 1, 1),
+            nn.BatchNorm2d(128),
             nn.ReLU()
         )
 
         self.conv9 = nn.Sequential(
             nn.Conv2d(128, 128, 3, 1, 1),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2)
         )
@@ -96,17 +106,20 @@ class CNN(nn.Module):
 
         self.conv10 = nn.Sequential(
             nn.Conv2d(128, 128, 3, 1, 1),
+            nn.BatchNorm2d(128),
             nn.ReLU()
         )
 
         self.conv11 = nn.Sequential(
             nn.Conv2d(128, 128, 1, 1, 0),
+            nn.BatchNorm2d(128),
             nn.ReLU()
         )
         # after convolution layer 11, the shape is 128x4x4.
 
         self.conv12 = nn.Sequential(
             nn.Conv2d(128, 128, 1, 1, 0),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2)
         )
@@ -114,6 +127,7 @@ class CNN(nn.Module):
 
         self.conv13 = nn.Sequential(
             nn.Conv2d(128, 128, 3, 1, 1),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2)
         )
@@ -152,6 +166,8 @@ if cuda_gpu:
 
 optimizer = torch.optim.Adam(cnn.parameters(), lr=LR)
 loss_func = nn.CrossEntropyLoss()
+
+time_start = time.time()
 for epoch in range(EPOCH):
     for step, (b_x, b_y) in enumerate(train_loader):
         if cuda_gpu:
@@ -172,3 +188,6 @@ for epoch in range(EPOCH):
                 pred_y = pred_y.numpy()
             accuracy = float((pred_y == np.array(test_y)).astype(int).sum()) / float(len(test_y))
             print('Epoch: ', epoch, '| train loss: %.4f' % loss.data, '| test accuracy: %.2f' % accuracy)
+
+time_end = time.time()
+print("all time consume: ", time_end-time_start)
