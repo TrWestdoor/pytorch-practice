@@ -7,9 +7,10 @@ import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
 import time
+from torchvision import transforms
 
 
-BATCH_SIZE = 50
+BATCH_SIZE = 200
 EPOCH = 100
 LR = 0.01
 
@@ -32,10 +33,11 @@ print(train_data.targets.__len__())
 
 
 train_loader = Data.DataLoader(dataset=train_data, batch_size=BATCH_SIZE, shuffle=True)
-test_loader = torchvision.datasets.CIFAR10(root='./CIFAR10', train=False)
+test_data = torchvision.datasets.CIFAR10(root='./CIFAR10', train=False, transform=transforms.ToTensor())
+test_loader = Data.DataLoader(dataset=test_data, batch_size=BATCH_SIZE, shuffle=True)
 
-test_x = torch.from_numpy(test_loader.data).type(torch.FloatTensor).permute(0, 3, 1, 2)[:200]
-test_y = test_loader.targets[:200]
+# test_x = torch.from_numpy(test_loader.data).type(torch.FloatTensor).permute(0, 3, 1, 2)
+# test_y = test_loader.targets
 
 
 class CNN(nn.Module):
@@ -151,8 +153,7 @@ class CNN(nn.Module):
         x = self.conv13(x)
         x = x.view(x.size(0), -1)
 
-        linear_result = self.linear(x)
-        output_layer = F.softmax(linear_result)
+        output_layer = self.linear(x)
         return output_layer
 
 gpus = [0]
@@ -167,6 +168,7 @@ if cuda_gpu:
 optimizer = torch.optim.Adam(cnn.parameters(), lr=LR)
 loss_func = nn.CrossEntropyLoss()
 
+
 time_start = time.time()
 for epoch in range(EPOCH):
     for step, (b_x, b_y) in enumerate(train_loader):
@@ -180,14 +182,18 @@ for epoch in range(EPOCH):
         optimizer.step()
 
         if step % 50 == 0:
-            test_out = cnn(test_x)
-            pred_y = torch.max(test_out, 1)[1].data
-            if cuda_gpu:
-                pred_y = pred_y.cpu().numpy()
-            else:
-                pred_y = pred_y.numpy()
-            accuracy = float((pred_y == np.array(test_y)).astype(int).sum()) / float(len(test_y))
-            print('Epoch: ', epoch, '| train loss: %.4f' % loss.data, '| test accuracy: %.2f' % accuracy)
+            accuracy = 0
+            for test_step, (test_x, test_y) in enumerate(test_loader):
+                if cuda_gpu:
+                    test_x = test_x.cuda()
+                test_out = cnn(test_x)
+                pred_y = torch.max(test_out, 1)[1].data
+                if cuda_gpu:
+                    pred_y = pred_y.cpu().numpy()
+                else:
+                    pred_y = pred_y.numpy()
+                accuracy += float((pred_y == np.array(test_y)).astype(int).sum()) / float(len(test_y))
+            print('Epoch: ', epoch, '| train loss: %.4f' % loss.data, '| test accuracy: %.2f' % (accuracy/(test_step+1)))
 
 time_end = time.time()
 print("all time consume: ", time_end-time_start)
