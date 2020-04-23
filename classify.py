@@ -1,6 +1,9 @@
 import torch
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+import os
+
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 
 n_data = torch.ones(100, 2)
