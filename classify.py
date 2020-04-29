@@ -25,14 +25,23 @@ y = torch.cat((y0, y1)).type(torch.LongTensor)
 
 
 class Net(torch.nn.Module):
+    # def __init__(self, n_feature, n_hidden, n_output):
+    #     super(Net, self).__init__()
+    #     self.n_hidden = torch.nn.Linear(n_feature, n_hidden)
+    #     self.out = torch.nn.Linear(n_hidden, n_output)
+
     def __init__(self, n_feature, n_hidden, n_output):
         super(Net, self).__init__()
-        self.n_hidden = torch.nn.Linear(n_feature, n_hidden)
-        self.out = torch.nn.Linear(n_hidden, n_output)
+        self.classify = torch.nn.Sequential(
+            torch.nn.Linear(n_feature, n_hidden),
+            torch.nn.ReLU(),
+            torch.nn.Linear(n_hidden, n_output),
+        )
 
     def forward(self, x_layer):
-        x_layer = torch.relu(self.n_hidden(x_layer))
-        x_layer = self.out(x_layer)
+        # x_layer = torch.relu(self.n_hidden(x_layer))
+        # x_layer = self.out_layer)
+        x_layer = self.classify(x_layer)
         x_layer = torch.nn.functional.softmax(x_layer)
         return x_layer
 

@@ -33,8 +33,8 @@ print(train_data.targets.size())
 
 
 train_loader = Data.DataLoader(dataset=train_data, batch_size=BATCH_SIZE, shuffle=True)
-test_data = torchvision.datasets.MNIST(root='./mnist', train=False)
-test_x = torch.unsqueeze(test_data.data, dim=1).type(torch.FloatTensor)/255.
+test_data = torchvision.datasets.MNIST(root='./mnist', train=False, transform=torchvision.transforms.ToTensor())
+test_x = torch.unsqueeze(test_data.data, dim=1)/255.
 test_y = test_data.targets
 
 
