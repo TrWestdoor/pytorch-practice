@@ -8,7 +8,9 @@ import numpy as np
 import torch.nn.functional as F
 import time
 from torchvision import transforms
+import os
 
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 BATCH_SIZE = 200
 EPOCH = 100
@@ -30,7 +32,6 @@ print(train_data.data.shape)
 print(train_data.targets.__len__())
 # plt.imshow(train_data.data[0])
 # plt.show()
-
 
 train_loader = Data.DataLoader(dataset=train_data, batch_size=BATCH_SIZE, shuffle=True)
 test_data = torchvision.datasets.CIFAR10(root='./CIFAR10', train=False, transform=transforms.ToTensor())
@@ -156,6 +157,7 @@ class CNN(nn.Module):
         output_layer = self.linear(x)
         return output_layer
 
+
 gpus = [0]
 cuda_gpu = torch.cuda.is_available()
 cnn = CNN()
@@ -164,10 +166,8 @@ cnn = CNN()
 if cuda_gpu:
     cnn = torch.nn.DataParallel(cnn, device_ids=gpus).cuda()
 
-
 optimizer = torch.optim.Adam(cnn.parameters(), lr=LR)
 loss_func = nn.CrossEntropyLoss()
-
 
 time_start = time.time()
 for epoch in range(EPOCH):
