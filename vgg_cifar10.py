@@ -7,6 +7,7 @@ from torchvision import transforms
 from torch import nn
 import time
 
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 BATCH_SIZE = 200
 EPOCH = 100
