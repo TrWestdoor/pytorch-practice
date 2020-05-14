@@ -6,10 +6,12 @@ import torch.utils.data as Data
 import torch.nn as nn
 import time
 
+from torch.utils.tensorboard import SummaryWriter
+
 
 EPOCH = 1
 BATCH_SIZE = 50
-LR = 0.01
+LR = 0.00005
 DOWNLOAD_MNIST = False
 
 
@@ -81,6 +83,7 @@ loss_func = nn.CrossEntropyLoss()
 
 
 time_start = time.time()
+writer = SummaryWriter('tb_mnist')
 for epoch in range(EPOCH):
     for step, (b_x, b_y) in enumerate(train_loader):
         # print(b_x.shape); break
@@ -106,6 +109,11 @@ for epoch in range(EPOCH):
 
             accuracy = float((pred_y == test_y.data.numpy()).astype(int).sum()) / float(test_y.size(0))
             print('Epoch: ', epoch, '| train loss: %.4f' % loss.data, '| test accuracy: %.2f' % accuracy)
+
+            writer.add_scalar("Train/Accuracy", accuracy, step)
+
+        writer.add_scalar("Train/Loss", loss.item(), step)
+
 
 time_end = time.time()
 print("all time spent: ", time_end-time_start)
