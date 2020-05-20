@@ -39,9 +39,10 @@ class VGG(nn.Module):
     def __init__(self):
         super(VGG, self).__init__()
         self.conv1 = nn.Sequential(
-            nn.Conv2d(3, 64, 3, 1, 1),
-            nn.BatchNorm2d(64),
-            nn.ReLU()
+            # nn.Conv2d(3, 64, 3, 1, 1),
+            # nn.BatchNorm2d(64),
+            # nn.ReLU()
+            *[nn.Conv2d(3, 64, 3, 1, 1), nn.BatchNorm2d(64), nn.ReLU()]
         )
         # after convolution layer 1, the shape is 64x32x32.
 
@@ -127,10 +128,10 @@ class VGG(nn.Module):
         # after convolution layer 12, the shape is 512x2x2.
 
         self.conv13 = nn.Sequential(
-            nn.Conv2d(512, 512, 3, 1, 1),
-            nn.BatchNorm2d(512),
-            nn.ReLU(),
-            nn.MaxPool2d(2)
+            # nn.Conv2d(512, 512, 3, 1, 1),
+            # nn.BatchNorm2d(512),
+            # nn.ReLU(),
+            # nn.MaxPool2d(2)
         )
         # after convolution layer 13, the shape is 512x1x1.
 
