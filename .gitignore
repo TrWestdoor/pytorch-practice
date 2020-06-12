@@ -1,1 +1,5 @@
 .ipynb_checkpoints
+.idea/
+CIFAR10/
+runs/
+tb_mnist/
